@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="SubPilot - Take Control of Every Subscription. Securely track and manage recurring expenses 100% offline.">
+    <meta name="author" content="SubPilot Open Source">
+    
+    <meta property="og:title" content="SubPilot - Subscription Management">
+    <meta property="og:description" content="Securely track recurring expenses 100% offline using LocalStorage encryption.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/png" href="1 (2).png">
+    
+    <title>SubPilot | Secure Subscription Control</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="notification-container" class="notification-container"></div>
+
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <span class="brand-text">SubPilot</span>
+        </div>
+        <div class="nav-links" id="nav-links">
+            <a href="#" class="nav-link" data-target="landing-home">Home</a>
+            <a href="#" class="nav-link" data-target="landing-features">Features</a>
+            <a href="#" class="nav-link" data-target="landing-pricing">Pricing</a>
+            <a href="#" class="nav-link" data-target="landing-faq">FAQ</a>
+            <a href="https://ko-fi.com/placeholder" target="_blank" rel="noopener noreferrer" class="nav-link">Donate</a>
+            <a href="https://github.com/hamid-dev591/SubPilot" target="_blank" class="nav-download-btn">
+        <span>Download</span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+    </a>
+            <button id="nav-dashboard-btn" class="btn btn-primary">Dashboard</button>
+        </div>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+        </button>
+    </nav>
+
+    <div id="view-auth" class="view-section hidden">
+        <div class="container" style="min-height: 80vh; display: flex; align-items: center; justify-content: center;">
+            <div class="panel" style="max-width: 450px; width: 100%; text-align: center; border: 2px solid var(--blue-500);">
+                <h2 class="app-title" style="margin-bottom: 0.5rem;">Secure Access</h2>
+                <p id="auth-message" style="color: var(--blue-500); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                    Checking security status...
+                </p>
+                <form id="auth-form">
+                    <div class="form-group">
+                        <input type="password" id="auth-password" class="form-input" required placeholder="Enter Master Password" style="text-align: center; font-size: 1.1rem;">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full" id="btn-auth-submit">Unlock Vault</button>
+                </form>
+                <div id="auth-error" class="hidden" style="color: var(--blue-900); font-weight: bold; margin-top: 1rem; padding: 0.5rem; border: 1px solid var(--blue-900); background: var(--blue-50);">
+                    Incorrect Password!
+                </div>
+                <small style="display: block; margin-top: 1.5rem; color: var(--blue-300);">
+                    Your data is encrypted using AES-GCM directly in your browser.
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-landing" class="view-section active">
+        <section id="landing-home" class="hero-section">
+            <div class="container hero-container">
+                <h1 class="hero-headline">Take Control of Every Subscription</h1>
+                <p class="hero-subheadline">Track recurring expenses, discover hidden costs and manage all your subscriptions from one simple encrypted dashboard.</p>
+                <div class="hero-actions">
+                    <button id="hero-dashboard-btn" class="btn btn-primary btn-large">Open Dashboard</button>
+                    <a href="https://ko-fi.com/placeholder" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-large">Donate via Ko-fi</a>
+                </div>
+            </div>
+        </section>
+
+        <section id="landing-features" class="features-section bg-light">
+            <div class="container">
+                <h2 class="section-title">Professional Tracking Features</h2>
+                <div class="grid feature-grid">
+                    <div class="feature-card">
+                        <h3>Local Encryption</h3>
+                        <p>Security first. Your data is encrypted with a Master Password using Web Crypto API. No one can see your finances but you.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Smart Insights</h3>
+                        <p>Get a bird's eye view of your spending. Discover your most expensive habits and see exactly where your money goes.</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Offline & Fast</h3>
+                        <p>No servers, no waiting. SubPilot works entirely on your device, ensuring maximum speed and total privacy.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="landing-stats" class="stats-section">
+            <div class="container">
+                <div class="grid stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-value">100%</span>
+                        <span class="stat-label">Privacy Focused</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">AES-256</span>
+                        <span class="stat-label">Military Grade Encryption</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-value">0</span>
+                        <span class="stat-label">External Tracking</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="landing-pricing" class="pricing-section">
+            <div class="container">
+                <h2 class="section-title">Transparent Pricing</h2>
+                <div class="grid pricing-grid">
+                    <div class="pricing-card">
+                        <h3 class="pricing-tier">Open Source Free</h3>
+                        <div class="pricing-price">$0 <span>/ forever</span></div>
+                        <ul class="pricing-features">
+                            <li>Unlimited Subscriptions</li>
+                            <li>Military-Grade Local Encryption</li>
+                            <li>Data Export & Import</li>
+                            <li>100% Offline Capability</li>
+                        </ul>
+                        <button class="btn btn-primary btn-full" id="pricing-dashboard-btn">Start Tracking Now</button>
+                    </div>
+                    <div class="pricing-card support-card">
+                        <h3 class="pricing-tier">Support the Developer</h3>
+                        <div class="pricing-price">Pay what you want</div>
+                        <ul class="pricing-features">
+                            <li>Help maintain the project</li>
+                            <li>Support open source</li>
+                            <li>Keep SubPilot ad-free</li>
+                            <li>Fund future updates</li>
+                        </ul>
+                        <a href="https://ko-fi.com/placeholder" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-full">Donate via Ko-fi</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="landing-faq" class="faq-section bg-light">
+            <div class="container">
+                <h2 class="section-title">Frequently Asked Questions</h2>
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <h4>What happens if I forget my Master Password?</h4>
+                        <p>Because SubPilot is 100% local and encrypted, we cannot recover your password. If you lose it, your data remains encrypted and unreadable forever.</p>
+                    </div>
+                    <div class="faq-item">
+                        <h4>How can I backup my data?</h4>
+                        <p>Go to Dashboard > Settings. You can export your entire database as an unencrypted JSON file for safe keeping or transfer.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <div class="container footer-container">
+                <div class="footer-brand">SubPilot</div>
+                <div class="footer-links">
+                    <a href="#" id="footer-dashboard-btn">Dashboard</a>
+                    <a href="https://ko-fi.com/placeholder" target="_blank">Support via Ko-fi</a>
+                </div>
+                <div class="footer-copyright">
+                    &copy; <span id="current-year"></span> SubPilot. Open Source & Secure.
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="view-dashboard" class="view-section hidden">
+        <div class="app-layout">
+            <header class="app-header">
+                <div class="app-header-left">
+                    <h2 class="app-title">Dashboard</h2>
+                </div>
+                <div class="app-header-right">
+                    <button id="btn-open-add-modal" class="btn btn-primary">Add Subscription</button>
+                    <button id="btn-open-settings" class="btn btn-outline">Settings</button>
+                    <button id="btn-logout" class="btn btn-danger">Lock Vault</button>
+                </div>
+            </header>
+
+
+
+            <main class="app-content">
+                <section class="widget-grid">
+                    <div class="widget-card">
+                        <div class="widget-title">Monthly Spending</div>
+                        <div class="widget-value" id="widget-monthly-cost">$0.00</div>
+                    </div>
+                    <div class="widget-card">
+                        <div class="widget-title">Yearly Projection</div>
+                        <div class="widget-value" id="widget-yearly-cost">$0.00</div>
+                    </div>
+                    <div class="widget-card">
+                        <div class="widget-title">Active Services</div>
+                        <div class="widget-value" id="widget-active-subs">0</div>
+                    </div>
+                    <div class="widget-card">
+                        <div class="widget-title">Avg per Service</div>
+                        <div class="widget-value" id="widget-avg-monthly">$0.00</div>
+                    </div>
+                </section>
+
+                <section id="payment-alerts-container"></section>
+
+                <div class="dashboard-split">
+                    <div class="dashboard-main-col">
+                        <div class="control-bar">
+                            <input type="text" id="search-input" class="form-input" placeholder="Search subscriptions...">
+                            <select id="filter-category" class="form-select">
+                                <option value="All">All Categories</option>
+                                <option value="Entertainment">Entertainment</option>
+                                <option value="Software">Software</option>
+                                <option value="Productivity">Productivity</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <select id="sort-by" class="form-select">
+                                <option value="date-asc">Due Date (Soonest)</option>
+                                <option value="price-desc">Price (Highest)</option>
+                                <option value="name-asc">Name (A-Z)</option>
+                            </select>
+                            <select id="filter-status" class="form-select">
+                                <option value="All">All Statuses</option>
+                                <option value="Active">Active</option>
+                                <option value="Paused">Paused</option>
+                            </select>
+                        </div>
+
+                        <div class="subscription-list-container">
+                            <table class="data-table" id="subscriptions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Service</th>
+                                        <th>Category</th>
+                                        <th>Cycle</th>
+                                        <th>Price</th>
+                                        <th>Next Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="subscriptions-body"></tbody>
+                            </table>
+                            <div id="empty-state" class="empty-state hidden">
+                                <h3>No subscriptions found</h3>
+                                <p>Start tracking by adding your first service.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dashboard-side-col">
+                        <div class="panel">
+                            <h3 class="panel-title">Spending Analytics</h3>
+                            <div class="analytics-list">
+                                <div class="analytics-item">
+                                    <span class="analytics-label">Most Expensive:</span>
+                                    <span class="analytics-value" id="stat-max-sub">None</span>
+                                </div>
+                                <div class="analytics-item">
+                                    <span class="analytics-label">Cheapest:</span>
+                                    <span class="analytics-value" id="stat-min-sub">None</span>
+                                </div>
+                            </div>
+                            <h4 class="sub-panel-title">By Category</h4>
+                            <div id="category-breakdown-list"></div>
+                        </div>
+
+                        <div class="panel">
+                            <h3 class="panel-title">Quick Add</h3>
+                            <div class="quick-add-grid" id="quick-add-grid">
+                                <button class="quick-add-btn" data-service="Netflix" data-category="Entertainment">Netflix</button>
+                                <button class="quick-add-btn" data-service="Spotify" data-category="Entertainment">Spotify</button>
+                                <button class="quick-add-btn" data-service="ChatGPT" data-category="Productivity">ChatGPT</button>
+                                <button class="quick-add-btn" data-service="Canva" data-category="Software">Canva</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="view-settings" class="view-section hidden">
+        <div class="app-layout">
+            <header class="app-header">
+                <div class="app-header-left"><h2 class="app-title">Settings & Preferences</h2></div>
+                <div class="app-header-right"><button id="btn-back-dashboard" class="btn btn-outline">Back to Dashboard</button></div>
+            </header>
+
+            <main class="app-content settings-content">
+                <div class="settings-grid">
+                    <div class="panel">
+                        <h3 class="panel-title">Preferences</h3>
+                        <div class="form-group">
+                            <label>Display Currency</label>
+                            <select id="setting-currency" class="form-select">
+                                <option value="USD">USD ($)</option>
+                                <option value="EUR">EUR (€)</option>
+                                <option value="GBP">GBP (£)</option>
+                                <option value="DZD">DZD (DA)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                                    <label>المظهر (Theme)</label>
+                                   <button id="toggle-dark-mode" class="btn btn-outline" style="width: 100%;">
+                                     تبديل الوضع الداكن 🌙
+                                    </button>
+                        </div>
+                        
+                        <div class="form-group mt-2">
+                            <label>Custom Logo (Visual Branding)</label>
+                            <input type="file" id="setting-logo" accept="image/*" class="file-input">
+                            <button id="btn-remove-logo" class="btn btn-danger btn-full mt-1 hidden">Remove Logo</button>
+                            <small class="form-help">Upload an image to replace the SubPilot text logo.</small>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3 class="panel-title">Data Management</h3>
+                        <div class="data-actions">
+                            <button id="btn-export-json" class="btn btn-outline btn-full mb-1">Export Unencrypted JSON</button>
+                            <button id="btn-export-csv" class="btn btn-outline btn-full mb-1">Export CSV Spreadsheet</button>
+                            
+                            <label class="form-help">Import Data (JSON):</label>
+                            <input type="file" id="input-import-json" accept=".json" class="file-input">
+                            
+                            <hr class="divider">
+                            <button id="btn-reset-data" class="btn btn-danger btn-full">Wipe All Local Data</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <div id="modal-subscription" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Add Subscription</h3>
+                <button class="btn-close-modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="subscription-form">
+                    <input type="hidden" id="sub-id">
+                    <div class="form-group">
+                        <label>Service Name *</label>
+                        <input type="text" id="sub-name" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="sub-category" class="form-select">
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Software">Software</option>
+                            <option value="Productivity">Productivity</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group half-width">
+                            <label>Price *</label>
+                            <input type="number" id="sub-price" class="form-input" step="0.01" required>
+                        </div>
+                        <div class="form-group half-width">
+                            <label>Billing Cycle</label>
+                            <select id="sub-cycle" class="form-select">
+                                <option value="Monthly">Monthly</option>
+                                <option value="Yearly">Yearly</option>
+                                <option value="Weekly">Weekly</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Next Payment Date *</label>
+                        <input type="date" id="sub-date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Notes</label>
+                        <textarea id="sub-notes" class="form-input" style="height: 60px;"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-outline btn-close-modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Subscription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>
