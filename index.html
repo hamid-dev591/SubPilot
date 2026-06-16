@@ -185,11 +185,23 @@
                 </div>
             </header>
 
-
+<div class="glass-card">
+    <div class="glass-card-info">
+        <h3>Total Monthly Expenses</h3>
+        <h1 id="glass-total-amount">$0.00</h1>
+    </div>
+    <div class="glass-card-actions">
+        <button onclick="runSecurityAudit()" class="btn btn-outline" style="border-color: #f59e0b; color: #f59e0b;">
+            🛡️ الفحص الأمني الذكي
+        </button>
+    </div>
+</div>
 
             <main class="app-content">
                 <section class="widget-grid">
                     <div class="widget-card">
+
+                        
                         <div class="widget-title">Monthly Spending</div>
                         <div class="widget-value" id="widget-monthly-cost">$0.00</div>
                     </div>
@@ -334,6 +346,16 @@
                             
                             <hr class="divider">
                             <button id="btn-reset-data" class="btn btn-danger btn-full">Wipe All Local Data</button>
+                            <div class="storage-container">
+    <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+        <strong>Local Storage Usage</strong>
+        <span id="storage-text">0 KB / 5000 KB</span>
+    </div>
+    <div class="storage-bar-bg">
+        <div id="storage-fill-bar" class="storage-fill"></div>
+    </div>
+    <small style="color: var(--blue-300);">Encrypted offline data size</small>
+</div>
                         </div>
                     </div>
                 </div>
@@ -395,7 +417,9 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+ <script src="script.js"></script>
+    <script src="card.js"></script> </body>
+</html>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>
 </html>

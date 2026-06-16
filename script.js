@@ -112,6 +112,28 @@ document.addEventListener('DOMContentLoaded', () => {
             
             localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
             renderDashboard();
+
+            async function saveData() {
+        if (!sessionCryptoKey) return;
+
+        try {
+            const encryptedPayload = await encryptData(state, sessionCryptoKey);
+            const storedData = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+            storedData.encrypted = encryptedPayload;
+            
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
+            renderDashboard();
+            
+            // --- الإضافات الجديدة هنا ---
+            if(typeof updateGlassCard === 'function') updateGlassCard();
+            if(typeof updateStorageTracker === 'function') updateStorageTracker();
+            // ---------------------------
+
+        } catch (e) {
+            console.error("Encryption error:", e);
+            showNotification('Failed to save encrypted data.', 'error');
+        }
+    }
         } catch (e) {
             console.error("Encryption error:", e);
             showNotification('Failed to save encrypted data.', 'error');
@@ -258,12 +280,17 @@ document.addEventListener('DOMContentLoaded', () => {
         emptyState.classList.add('hidden');
         table.classList.remove('hidden');
 
-        subs.forEach(sub => {
+subs.forEach(sub => {
             const tr = document.createElement('tr');
             const isPaused = sub.status === 'Paused';
+            
+            // --- السطر الجديد لإضافة كلاس اللون الرمادي ---
+            if (isPaused) tr.classList.add('row-paused');
+            
             const statusBadge = `<span class="badge ${isPaused ? 'badge-paused' : 'badge-active'}">${sub.status}</span>`;
             
             tr.innerHTML = `
+
                 <td><strong>${sub.name}</strong></td>
                 <td>${sub.category}</td>
                 <td>${sub.cycle}</td>
@@ -734,6 +761,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ==========================================
+    // EXPORT TO EXTERNAL FILES (الجسر للملفات الخارجية)
+    // ==========================================
+    window.appState = () => state; // دالة تجلب البيانات المحدثة دائماً
+    window.appFormatCurrency = formatCurrency;
+    window.appGetNormalizedCosts = getNormalizedCosts;
+    window.appShowNotification = showNotification;
+
     init();
 });
 
@@ -795,3 +830,149 @@ function renderChart() {
     });
 }
 
+/* ==========================================================================
+   NEW FEATURES LOGIC: GLASS CARD, AUDIT, PAUSE & STORAGE
+   ========================================================================== */
+
+// 1. تحديث البطاقة الزجاجية للإجمالي (تتجاهل المتوقفة)
+function updateGlassCard() {
+    const card = document.getElementById('glass-total-amount');
+    if (!card) return;
+    
+    let total = 0;
+    state.subscriptions.forEach(sub => {
+        // نحسب فقط الاشتراكات النشطة
+        if (sub.status !== 'paused') {
+            total += parseFloat(sub.price || 0);
+        }
+    });
+    card.textContent = `$${total.toFixed(2)}`;
+}
+
+// 2. الفحص الأمني الذكي (Security Audit)
+window.runSecurityAudit = function() {
+    let warnings = [];
+    let names = new Set();
+    
+    state.subscriptions.forEach(sub => {
+        let subName = (sub.name || '').toLowerCase().trim();
+        
+        // فحص التكرار
+        if (names.has(subName) && subName !== '') {
+            warnings.push(`⚠️ لديك أكثر من اشتراك باسم "${sub.name}"!`);
+        }
+        names.add(subName);
+        
+        // فحص السحب العالي المريب
+        if (parseFloat(sub.price) > 99) {
+            warnings.push(`💸 تنبيه: اشتراك "${sub.name}" يسحب مبلغا كبيرا (${sub.price}). تأكد منه.`);
+        }
+    });
+    
+    if (warnings.length === 0) {
+        showNotification("الفحص سليم: لا توجد اشتراكات مكررة أو مصاريف مريبة.", "success");
+    } else {
+        warnings.forEach(w => showNotification(w, "error")); // تستخدم دالة showNotification الموجودة لديك
+    }
+};
+
+// 3. تحديث مؤشر الذاكرة المحلي (يُستدعى عند كل حفظ)
+function updateStorageTracker() {
+    const bar = document.getElementById('storage-fill-bar');
+    const text = document.getElementById('storage-text');
+    if (!bar || !text) return;
+    
+    const storedData = localStorage.getItem('subpilot_data') || '';
+    // حجم البيانات بالكيلوبايت (الجافاسكريبت تستخدم UTF-16 يعني الحرف بـ 2 بايت)
+    const kbSize = (storedData.length * 2) / 1024; 
+    const maxKb = 5120; // 5 ميجابايت هو الحد الأقصى التقريبي للمتصفحات
+    const percentage = Math.min((kbSize / maxKb) * 100, 100);
+    
+    bar.style.width = `${percentage}%`;
+    text.textContent = `${kbSize.toFixed(2)} KB / 5000 KB`;
+}
+
+// 4. دالة الإيقاف المؤقت/الاستئناف
+window.togglePauseStatus = function(index) {
+    if (state.subscriptions[index]) {
+        if (state.subscriptions[index].status === 'paused') {
+            state.subscriptions[index].status = 'active';
+            showNotification("تم استئناف الاشتراك", "success");
+        } else {
+            state.subscriptions[index].status = 'paused';
+            showNotification("تم إيقاف الاشتراك مؤقتاً", "info");
+        }
+        
+        // حفظ وإعادة تحديث الواجهة
+        if(typeof saveData === 'function') saveData();
+        if(typeof updateGlassCard === 'function') updateGlassCard();
+        // **ملاحظة:** هنا استدعِ الدالة التي ترسم الجدول لديك (مثل renderDashboard أو renderTable)
+        // مثال: renderDashboard(); 
+    }
+};
+
+// ==========================================
+    // NEW FEATURES LOGIC (GLASS CARD, AUDIT, STORAGE)
+    // ==========================================
+
+    window.updateGlassCard = function() {
+        const card = document.getElementById('glass-total-amount');
+        if (!card) return;
+        
+        let total = 0;
+        state.subscriptions.forEach(sub => {
+            // كودك يستخدم كلمة 'Active' بحرف كبير
+            if (sub.status === 'Active') {
+                // استخدام دالة getNormalizedCosts الموجودة في كودك لحساب التكلفة الشهرية بدقة
+                const costs = getNormalizedCosts(sub.price, sub.cycle);
+                total += costs.monthly;
+            }
+        });
+        card.textContent = formatCurrency(total); // كودك يحتوي على دالة formatCurrency الممتازة
+    };
+
+    window.runSecurityAudit = function() {
+        let warnings = [];
+        let names = new Set();
+        
+        state.subscriptions.forEach(sub => {
+            let subName = (sub.name || '').toLowerCase().trim();
+            if (names.has(subName) && subName !== '') {
+                warnings.push(`⚠️ لديك اشتراك مكرر باسم "${sub.name}"!`);
+            }
+            names.add(subName);
+            
+            const costs = getNormalizedCosts(sub.price, sub.cycle);
+            if (costs.monthly > 99) {
+                warnings.push(`💸 تنبيه: اشتراك "${sub.name}" يسحب مبلغا كبيرا شهريا. تأكد منه.`);
+            }
+        });
+        
+        if (warnings.length === 0) {
+            showNotification("الفحص سليم: لا توجد اشتراكات مكررة أو مصاريف مريبة.", "success");
+        } else {
+            warnings.forEach(w => showNotification(w, "error"));
+        }
+    };
+
+    window.updateStorageTracker = function() {
+        const bar = document.getElementById('storage-fill-bar');
+        const text = document.getElementById('storage-text');
+        if (!bar || !text) return;
+        
+        const storedData = localStorage.getItem(STORAGE_KEY) || '';
+        const kbSize = (storedData.length * 2) / 1024; 
+        const maxKb = 5120; 
+        const percentage = Math.min((kbSize / maxKb) * 100, 100);
+        
+        bar.style.width = `${percentage}%`;
+        text.textContent = `${kbSize.toFixed(2)} KB / 5000 KB`;
+    };
+
+    // تشغيلها مرة واحدة عند فتح الواجهة لضمان تحديث الأرقام
+    setTimeout(() => {
+        updateGlassCard();
+        updateStorageTracker();
+    }, 500);
+
+    
